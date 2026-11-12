@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIDI SAINT | Network Intelligence</title><style>
+*{box-sizing:border-box}
+body{
+    margin:0;padding:20px;background:#080b12;
+    color:#00d9ff;font-family:monospace
+}
+.container{max-width:650px;margin:45px auto}
+.card{
+    background:#0c111b;border:1px solid #16404b;
+    border-radius:12px;padding:24px;margin-bottom:20px
+}
+h1{text-align:center;letter-spacing:5px;font-size:32px}
+h2{font-size:16px;border-bottom:1px solid #16404b;padding-bottom:12px}
+.subtitle{text-align:center;color:#a0adbd;line-height:1.8}
+.status{text-align:center;color:#00ff91;margin-top:25px}
+.info{padding:12px 0;border-bottom:1px solid #1b2938;color:white;overflow-wrap:anywhere}
+.label{color:#00d9ff;margin-bottom:5px}
+.notice{color:#8997a8;font-size:11px;line-height:1.8}
+button{
+    width:100%;padding:15px;margin-top:15px;
+    background:#00d9ff;color:#080b12;border:0;
+    border-radius:5px;font-family:monospace;
+    font-weight:bold;cursor:pointer
+}
+button:disabled{opacity:.5}
+#result{color:#00ff91;text-align:center;margin-top:18px;font-size:12px}
+</style></head><body>
+<div class="container"><div class="card">
+    <h1>GIDI SAINT</h1>
+    <p class="subtitle">
+        NETWORK INTELLIGENCE<br>
+        AUTHORISED DEVICE ANALYSIS<br>
+        TARGET: DANIEL
+    </p>
+    <p class="status">● SYSTEM READY</p>
+</div><div class="card">
+    <h2>BROWSER INTELLIGENCE</h2>
+    <p class="notice">
+        This page displays basic information your browser
+        voluntarily exposes. Review the information before
+        choosing whether to send it to the test server.
+    </p><button id="inspectBtn" onclick="inspectBrowser()">
+    INSPECT MY BROWSER
+</button>
+
+<div id="deviceInfo"></div>
+
+<button id="sendBtn" onclick="sendReport()" disabled>
+    SEND MY BROWSER REPORT
+</button>
+
+<div id="result"></div>
+
+</div><div class="card">
+    <h2>ABOUT</h2>
+    <p class="notice">
+        GIDI SAINT<br>
+        Cybersecurity | Network Research | Ethical Hacking
+    </p>
+</div></div><script>
+let browserReport = null;
+
+function identifyBrowser(ua){
+    if(/Edg\//.test(ua)) return "Microsoft Edge";
+    if(/SamsungBrowser/.test(ua)) return "Samsung Internet";
+    if(/OPR\//.test(ua)) return "Opera";
+    if(/Firefox\//.test(ua)) return "Firefox";
+    if(/Chrome\//.test(ua)) return "Google Chrome";
+    if(/Safari\//.test(ua)) return "Safari";
+    return "Unknown";
+}
+
+function identifyOS(ua){
+    if(/Android/.test(ua)) return "Android";
+    if(/iPhone|iPad/.test(ua)) return "iOS";
+    if(/Windows/.test(ua)) return "Windows";
+    if(/Mac OS/.test(ua)) return "macOS";
+    return "Unknown";
+}
+
+function inspectBrowser(){
+    const ua = navigator.userAgent;
+
+    browserReport = {
+        browser: identifyBrowser(ua),
+        operatingSystem: identifyOS(ua),
+        platform: navigator.platform || "Unavailable",
+        screenResolution: screen.width + " x " + screen.height,
+        browserWindow: innerWidth + " x " + innerHeight,
+        language: navigator.language,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        cpuThreads: navigator.hardwareConcurrency || "Unavailable",
+        userAgent: ua
+    };
+
+    const output = document.getElementById("deviceInfo");
+    output.replaceChildren();
+
+    for(const [key,value] of Object.entries(browserReport)){
+        const row = document.createElement("div");
+        row.className = "info";
+
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = key;
+
+        const result = document.createElement("div");
+        result.textContent = value;
+
+        row.append(label,result);
+        output.appendChild(row);
+    }
+
+    document.getElementById("sendBtn").disabled = false;
+    document.getElementById("result").textContent =
+        "INSPECTION COMPLETE — REVIEW YOUR INFORMATION";
+}
+
+async function sendReport(){
+    if(!browserReport) return;
+
+    const button = document.getElementById("sendBtn");
+    const result = document.getElementById("result");
+
+    button.disabled = true;
+    result.textContent = "SENDING REPORT...";
+
+    try{
+        const response = await fetch("/report",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(browserReport)
+        });
+
+        if(!response.ok) throw new Error("Server rejected report");
+
+        result.textContent = "REPORT RECEIVED SUCCESSFULLY";
+    }catch(error){
+        result.textContent =
+            "REPORT SERVER NOT CONNECTED";
+        button.disabled = false;
+    }
+}
+</script></body>
+</html>
